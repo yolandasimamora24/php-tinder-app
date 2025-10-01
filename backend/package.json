@@ -4,7 +4,11 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "postinstall": "npm rebuild lightningcss"
+    },
+    "engines": {
+        "node": "20.x"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
