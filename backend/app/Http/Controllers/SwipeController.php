@@ -3,23 +3,21 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Swipe;
 use App\Models\UserMatch;
+use App\Models\User;
 
 /**
- * @OA\Tag(name="Swipe", description="Swipe & potential match endpoints")
+ * @OA\Tag(name="Swipe", description="Swiping endpoints")
  */
 class SwipeController extends Controller
 {
     /**
-     * Swipe on a user (like or dislike)
-     *
      * @OA\Post(
      *     path="/api/swipe",
      *     tags={"Swipe"},
-     *     summary="Swipe on a user",
-     *     security={{"sanctum":{}}},
+     *     summary="Swipe a user (like or dislike)",
+     *     security={{"Bearer": {}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -28,8 +26,8 @@ class SwipeController extends Controller
      *             @OA\Property(property="type", type="string", enum={"like","dislike"})
      *         )
      *     ),
-     *     @OA\Response(response=200, description="Swipe recorded"),
-     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=200, description="Swipe result (match true/false)"),
+     *     @OA\Response(response=401, description="Unauthorized")
      * )
      */
     public function swipe(Request $request)
@@ -47,8 +45,6 @@ class SwipeController extends Controller
             ['type' => $request->type]
         );
 
-        $match = false;
-
         if ($request->type === 'like') {
             $reverseSwipe = Swipe::where('swiper_id', $swipeeId)
                                  ->where('swipee_id', $swiper->id)
@@ -59,41 +55,28 @@ class SwipeController extends Controller
                     'user_one_id' => min($swiper->id, $swipeeId),
                     'user_two_id' => max($swiper->id, $swipeeId)
                 ]);
-                $match = true;
+                return response()->json(['match' => true]);
             }
         }
 
-        return response()->json(['match' => $match]);
+        return response()->json(['match' => false]);
     }
 
     /**
-     * Get potential matches (users not swiped yet)
-     *
      * @OA\Get(
      *     path="/api/potential-matches",
      *     tags={"Swipe"},
-     *     summary="Get list of potential matches",
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(
-     *         name="page",
-     *         in="query",
-     *         description="Page number",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Parameter(
-     *         name="limit",
-     *         in="query",
-     *         description="Number of results per page",
-     *         @OA\Schema(type="integer")
-     *     ),
+     *     summary="Get potential users to swipe",
+     *     security={{"Bearer": {}}},
+     *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="limit", in="query", required=false, @OA\Schema(type="integer")),
      *     @OA\Response(response=200, description="Paginated list of users"),
-     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=401, description="Unauthorized")
      * )
      */
     public function potentialMatches(Request $request)
     {
         $swiper = auth()->user();
-
         $page = $request->query('page', 1);
         $limit = $request->query('limit', 10);
 
@@ -104,13 +87,6 @@ class SwipeController extends Controller
 
         $users = $query->paginate($limit, ['*'], 'page', $page);
 
-        return response()->json([
-            'success' => true,
-            'data' => $users->items(),
-            'current_page' => $users->currentPage(),
-            'last_page' => $users->lastPage(),
-            'per_page' => $users->perPage(),
-            'total' => $users->total(),
-        ]);
+        return response()->json($users);
     }
 }

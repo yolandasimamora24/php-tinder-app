@@ -10,7 +10,7 @@
     },
     "servers": [
         {
-            "url": "http://localhost"
+            "url": "https://php-tinder-app-production.up.railway.app"
         }
     ],
     "paths": {
@@ -51,9 +51,9 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "User registered successfully"
+                        "description": "User created successfully"
                     },
-                    "400": {
+                    "422": {
                         "description": "Validation error"
                     }
                 }
@@ -105,16 +105,41 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Logout current user",
+                "summary": "Logout user (revoke token)",
                 "operationId": "fe8f3429cd6979b3b4517e186505f9f9",
                 "responses": {
                     "200": {
                         "description": "Logged out successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
                     }
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/profile": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get current user profile",
+                "operationId": "d32e56b6274eb68e980da6d91fbe9fd8",
+                "responses": {
+                    "200": {
+                        "description": "User profile"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
                     }
                 ]
             }
@@ -124,8 +149,7 @@
                 "tags": [
                     "Likes"
                 ],
-                "summary": "Get liked users",
-                "description": "Get list of users the authenticated user has liked",
+                "summary": "Get users you liked",
                 "operationId": "5cbe1c4726dea94c5f83a437686e9ae0",
                 "responses": {
                     "200": {
@@ -137,7 +161,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "Bearer": []
                     }
                 ]
             }
@@ -147,8 +171,7 @@
                 "tags": [
                     "Swipe"
                 ],
-                "summary": "Swipe on a user",
-                "description": "Swipe on a user (like or dislike)",
+                "summary": "Swipe a user (like or dislike)",
                 "operationId": "7513fe60ec4ac6dc6365f95bf2cf55f0",
                 "requestBody": {
                     "required": true,
@@ -178,7 +201,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Swipe recorded"
+                        "description": "Swipe result (match true/false)"
                     },
                     "401": {
                         "description": "Unauthorized"
@@ -186,7 +209,7 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "Bearer": []
                     }
                 ]
             }
@@ -196,14 +219,13 @@
                 "tags": [
                     "Swipe"
                 ],
-                "summary": "Get list of potential matches",
-                "description": "Get potential matches (users not swiped yet)",
+                "summary": "Get potential users to swipe",
                 "operationId": "e1c2af0f4e2e6bdbde8f5d943ae9d379",
                 "parameters": [
                     {
                         "name": "page",
                         "in": "query",
-                        "description": "Page number",
+                        "required": false,
                         "schema": {
                             "type": "integer"
                         }
@@ -211,7 +233,7 @@
                     {
                         "name": "limit",
                         "in": "query",
-                        "description": "Number of results per page",
+                        "required": false,
                         "schema": {
                             "type": "integer"
                         }
@@ -227,16 +249,9 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "Bearer": []
                     }
                 ]
-            }
-        }
-    },
-    "components": {
-        "responses": {
-            "200": {
-                "description": "User profile returned"
             }
         }
     },
@@ -251,7 +266,17 @@
         },
         {
             "name": "Swipe",
-            "description": "Swipe & potential match endpoints"
+            "description": "Swiping endpoints"
         }
-    ]
+    ],
+    "components": {
+        "securitySchemes": {
+            "Bearer": {
+                "type": "apiKey",
+                "description": "Enter token like: Bearer {token}",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    }
 }

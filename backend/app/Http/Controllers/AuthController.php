@@ -26,28 +26,28 @@ class AuthController extends Controller
      *             @OA\Property(property="password", type="string", format="password")
      *         )
      *     ),
-     *     @OA\Response(response=201, description="User registered successfully"),
-     *     @OA\Response(response=400, description="Validation error")
+     *     @OA\Response(response=201, description="User created successfully"),
+     *     @OA\Response(response=422, description="Validation error")
      * )
      */
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
         ]);
 
         $user = User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
+            'name' => $validated['name'],
+            'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'user'  => $user,
+            'user' => $user,
             'token' => $token,
         ], 201);
     }
@@ -72,7 +72,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $validated = $request->validate([
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required',
         ]);
 
@@ -87,7 +87,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'user'  => $user,
+            'user' => $user,
             'token' => $token,
         ]);
     }
@@ -96,9 +96,10 @@ class AuthController extends Controller
      * @OA\Post(
      *     path="/api/logout",
      *     tags={"Auth"},
-     *     summary="Logout current user",
-     *     security={{"sanctum":{}}},
-     *     @OA\Response(response=200, description="Logged out successfully")
+     *     summary="Logout user (revoke token)",
+     *     security={{"Bearer": {}}},
+     *     @OA\Response(response=200, description="Logged out successfully"),
+     *     @OA\Response(response=401, description="Unauthorized")
      * )
      */
     public function logout(Request $request)
@@ -109,12 +110,13 @@ class AuthController extends Controller
     }
 
     /**
-     * @OA/Get(
+     * @OA\Get(
      *     path="/api/profile",
      *     tags={"Auth"},
      *     summary="Get current user profile",
-     *     security={{"sanctum":{}}},
-     *     @OA\Response(response=200, description="User profile returned")
+     *     security={{"Bearer": {}}},
+     *     @OA\Response(response=200, description="User profile"),
+     *     @OA\Response(response=401, description="Unauthorized")
      * )
      */
     public function profile(Request $request)
