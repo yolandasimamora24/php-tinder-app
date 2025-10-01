@@ -6,7 +6,6 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('vendor/l5-swagger/swagger-ui.css') }}">
     <script src="{{ asset('vendor/l5-swagger/swagger-ui-bundle.js') }}"></script>
     <script src="{{ asset('vendor/l5-swagger/swagger-ui-standalone-preset.js') }}"></script>
-
     <style>
     html
     {
