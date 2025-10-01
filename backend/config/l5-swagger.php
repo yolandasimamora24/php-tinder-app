@@ -28,7 +28,7 @@ return [
     
             'paths' => [
                 'annotations' => base_path('app'),
-                'docs' => storage_path('api-docs'),
+                'docs' => public_path('storage/api-docs'),
                 'docs_json' => 'api-docs.json',
                 'docs_yaml' => 'api-docs.yaml',
                 'excludes' => [],
@@ -64,7 +64,7 @@ return [
     
         'paths' => [
             'annotations' => base_path('app'),
-            'docs' => storage_path('api-docs'),
+            'docs' => public_path('storage/api-docs'),
             'docs_json' => 'api-docs.json',
             'docs_yaml' => 'api-docs.yaml',
             'excludes' => [],
